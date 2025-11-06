@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 @Builder
 
 public class User {
+
     @Id
     @GeneratedValue(strategy =  GenerationType.IDENTITY)
     private Long id;
@@ -33,4 +34,6 @@ public class User {
     @CreationTimestamp
     @Column(name = "created_At", nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+
 }
