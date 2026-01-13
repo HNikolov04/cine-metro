@@ -36,11 +36,14 @@ public class UserService {
     }
 
     public UserDto createUser(RegisterUserRequestDto request) {
-        if (userRepository.existsByEmail(request.email())) {
+        String normalizedEmail = request.email().trim().toLowerCase();
+        if (userRepository.existsByEmail(normalizedEmail)) {
             throw new RuntimeException("Email already exists!");
         }
         User user = userMapper.registerRequestToUser(request);
+        user.setEmail(normalizedEmail);
         user.setPassword(passwordEncoder.encode(request.password()));
+        user.setRole(UserRole.CUSTOMER);
         User savedUser = userRepository.save(user);
         return userMapper.toDto(savedUser);
     }
