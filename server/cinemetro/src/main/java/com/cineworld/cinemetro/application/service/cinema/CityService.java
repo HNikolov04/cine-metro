@@ -6,8 +6,10 @@ import com.cineworld.cinemetro.application.dto.cinema.city.response.GetAllCities
 import com.cineworld.cinemetro.application.dto.cinema.city.response.GetCityResponseDto;
 import com.cineworld.cinemetro.application.mapper.cinema.CityMapper;
 import com.cineworld.cinemetro.domain.exceptions.cinema.city.CityAlreadyExistsException;
+import com.cineworld.cinemetro.domain.exceptions.cinema.city.CityHasBuildingsException;
 import com.cineworld.cinemetro.domain.exceptions.cinema.city.CityNotFoundException;
 import com.cineworld.cinemetro.domain.model.cinema.City;
+import com.cineworld.cinemetro.persistence.repository.cinema.CinemaBuildingRepository;
 import com.cineworld.cinemetro.persistence.repository.cinema.CityRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +22,7 @@ import java.util.List;
 public class CityService {
 
     private final CityRepository cityRepository;
+    private final CinemaBuildingRepository cinemaBuildingRepository;
 
     @Transactional
     public List<GetAllCitiesResponseDto> getAll() {
@@ -38,11 +41,12 @@ public class CityService {
 
     @Transactional
     public GetCityResponseDto create(CreateCityRequestDto req) {
-        if (cityRepository.existsByNameIgnoreCase(req.name())) {
-            throw new CityAlreadyExistsException(req.name());
+        String name = req.name().trim();
+        if (cityRepository.existsByNameIgnoreCase(name)) {
+            throw new CityAlreadyExistsException(name);
         }
 
-        City saved = cityRepository.save(City.builder().name(req.name()).build());
+        City saved = cityRepository.save(City.builder().name(name).build());
         return CityMapper.toGetCityDto(saved);
     }
 
@@ -51,20 +55,23 @@ public class CityService {
         City city = cityRepository.findById(id)
                 .orElseThrow(() -> new CityNotFoundException(id));
 
-        if (!city.getName().equalsIgnoreCase(req.name())
-                && cityRepository.existsByNameIgnoreCase(req.name())) {
-            throw new CityAlreadyExistsException(req.name());
+        String name = req.name().trim();
+        if (!city.getName().equalsIgnoreCase(name)
+                && cityRepository.existsByNameIgnoreCase(name)) {
+            throw new CityAlreadyExistsException(name);
         }
 
-        city.setName(req.name());
+        city.setName(name);
         return CityMapper.toGetCityDto(city);
     }
 
     @Transactional
     public void delete(Long id) {
-        if (!cityRepository.existsById(id)) {
-            throw new CityNotFoundException(id);
+        City city = cityRepository.findById(id)
+                .orElseThrow(() -> new CityNotFoundException(id));
+        if (cinemaBuildingRepository.existsByCity_Id(id)) {
+            throw new CityHasBuildingsException(id);
         }
-        cityRepository.deleteById(id);
+        cityRepository.delete(city);
     }
 }
