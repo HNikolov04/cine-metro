@@ -19,7 +19,8 @@ public class CinemaBuildingMapper {
         return new GetAllCinemaBuildingsResponseDto(
                 b.getId(),
                 b.getName(),
-                b.getAddress()
+                b.getAddress(),
+                b.getCity() != null ? b.getCity().getId() : null
         );
     }
 }

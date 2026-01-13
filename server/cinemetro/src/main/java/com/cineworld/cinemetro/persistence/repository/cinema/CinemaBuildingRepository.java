@@ -9,6 +9,7 @@ import java.util.List;
 @Repository
 public interface CinemaBuildingRepository extends JpaRepository<CinemaBuilding, Long> {
     boolean existsByCity_IdAndNameIgnoreCase(Long cityId, String name);
+    boolean existsByCity_Id(Long cityId);
 
     List<CinemaBuilding> findAllByCity_Id(Long cityId);
 }

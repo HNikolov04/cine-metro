@@ -8,7 +8,7 @@ import com.cineworld.cinemetro.application.service.cinema.CinemaBuildingService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,44 +18,40 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CinemaBuildingController {
 
-    private final CinemaBuildingService cinemaBuildingService;
+    private final CinemaBuildingService buildingService;
 
     @GetMapping
-    public ResponseEntity<List<GetAllCinemaBuildingsResponseDto>> getAll() {
-        return ResponseEntity.ok(cinemaBuildingService.getAll());
+    public List<GetAllCinemaBuildingsResponseDto> getAll() {
+        return buildingService.getAll();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<GetCinemaBuildingResponseDto> getById(@PathVariable Long id) {
-        return ResponseEntity.ok(cinemaBuildingService.getById(id));
+    public GetCinemaBuildingResponseDto getById(@PathVariable Long id) {
+        return buildingService.getById(id);
     }
 
-    @GetMapping("/city/{cityId}")
-    public ResponseEntity<List<GetAllCinemaBuildingsResponseDto>> getByCity(@PathVariable Long cityId) {
-        return ResponseEntity.ok(cinemaBuildingService.getByCity(cityId));
+    @GetMapping("/by-city/{cityId}")
+    public List<GetAllCinemaBuildingsResponseDto> getByCity(@PathVariable Long cityId) {
+        return buildingService.getByCity(cityId);
     }
 
-    // @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
-    public ResponseEntity<GetCinemaBuildingResponseDto> create(
-            @RequestBody @Valid CreateCinemaBuildingRequestDto request) {
-        var response = cinemaBuildingService.create(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    public GetCinemaBuildingResponseDto create(@RequestBody @Valid CreateCinemaBuildingRequestDto request) {
+        return buildingService.create(request);
     }
 
-    // @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
-    public ResponseEntity<GetCinemaBuildingResponseDto> update(
-            @PathVariable Long id,
-            @RequestBody @Valid UpdateCinemaBuildingRequestDto request) {
-        var response = cinemaBuildingService.update(id, request);
-        return ResponseEntity.ok(response);
+    public GetCinemaBuildingResponseDto update(@PathVariable Long id,
+                                               @RequestBody @Valid UpdateCinemaBuildingRequestDto request) {
+        return buildingService.update(id, request);
     }
 
-    // @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id) {
-        cinemaBuildingService.delete(id);
+        buildingService.delete(id);
     }
 }

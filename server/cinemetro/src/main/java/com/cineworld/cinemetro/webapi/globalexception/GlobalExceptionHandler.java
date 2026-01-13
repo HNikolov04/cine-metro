@@ -3,6 +3,7 @@ package com.cineworld.cinemetro.webapi.globalexception;
 import com.cineworld.cinemetro.domain.exceptions.cinema.cinemabuilding.CinemaBuildingAlreadyExistsException;
 import com.cineworld.cinemetro.domain.exceptions.cinema.cinemabuilding.CinemaBuildingNotFoundException;
 import com.cineworld.cinemetro.domain.exceptions.cinema.city.CityAlreadyExistsException;
+import com.cineworld.cinemetro.domain.exceptions.cinema.city.CityHasBuildingsException;
 import com.cineworld.cinemetro.domain.exceptions.cinema.city.CityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +20,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(CityAlreadyExistsException.class)
     public ResponseEntity<String> handleCityAlreadyExists(CityAlreadyExistsException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(CityHasBuildingsException.class)
+    public ResponseEntity<String> handleCityHasBuildings(CityHasBuildingsException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
     }
 
