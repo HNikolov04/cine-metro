@@ -1,10 +1,10 @@
 package com.cineworld.cinemetro;
 
-import com.cineworld.cinemetro.application.auth.AuthService;
-import com.cineworld.cinemetro.domain.enums.UserRole;
-import com.cineworld.cinemetro.domain.model.User;
+import com.cineworld.cinemetro.application.service.auth.AuthService;
+import com.cineworld.cinemetro.domain.enums.user.UserRole;
+import com.cineworld.cinemetro.domain.model.user.User;
 import com.cineworld.cinemetro.infrastructure.security.JwtTokenProvider;
-import com.cineworld.cinemetro.persistence.repository.UserRepository;
+import com.cineworld.cinemetro.persistence.repository.user.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

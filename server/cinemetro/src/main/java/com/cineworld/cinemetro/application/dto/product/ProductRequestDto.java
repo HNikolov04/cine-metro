@@ -1,18 +1,18 @@
 package com.cineworld.cinemetro.application.dto.product;
 
-import com.cineworld.cinemetro.domain.model.product.ProductType;
-import lombok.*;
-
+import com.cineworld.cinemetro.domain.enums.product.ProductType;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import java.math.BigDecimal;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class ProductRequestDto {
-    private String name;
-    private ProductType type;
-    private BigDecimal price;
-    private String description;
-}
+public record ProductRequestDto(
+        @NotBlank
+        String name,
+        @NotNull
+        ProductType type,
+        @NotNull
+        @Positive
+        BigDecimal price,
+        String description
+) {}

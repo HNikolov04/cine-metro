@@ -1,12 +1,12 @@
 package com.cineworld.cinemetro;
 
-import com.cineworld.cinemetro.application.dto.RegisterUserRequestDto;
-import com.cineworld.cinemetro.application.dto.UserDto;
-import com.cineworld.cinemetro.application.mapper.UserMapper;
-import com.cineworld.cinemetro.application.service.UserService;
-import com.cineworld.cinemetro.domain.enums.UserRole;
-import com.cineworld.cinemetro.domain.model.User;
-import com.cineworld.cinemetro.persistence.repository.UserRepository;
+import com.cineworld.cinemetro.application.dto.user.RegisterUserRequestDto;
+import com.cineworld.cinemetro.application.dto.user.UserDto;
+import com.cineworld.cinemetro.application.mapper.user.UserMapper;
+import com.cineworld.cinemetro.application.service.user.UserService;
+import com.cineworld.cinemetro.domain.enums.user.UserRole;
+import com.cineworld.cinemetro.domain.model.user.User;
+import com.cineworld.cinemetro.persistence.repository.user.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

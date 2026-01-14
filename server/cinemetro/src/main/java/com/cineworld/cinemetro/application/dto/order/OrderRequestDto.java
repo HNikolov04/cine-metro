@@ -1,21 +1,21 @@
 package com.cineworld.cinemetro.application.dto.order;
 
-import com.cineworld.cinemetro.domain.model.order.DiscountType;
-import lombok.*;
+import com.cineworld.cinemetro.domain.enums.order.DiscountType;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import java.math.BigDecimal;
 import java.util.List;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class OrderRequestDto {
-
-    private Long userId;                       // Which user created the order
-    private List<Long> ticketIds;              // List of Ticket IDs being purchased
-    private List<Long> productIds;             // List of Product IDs being purchased
-
-    private DiscountType discountType;         // Default = NONE
-    private BigDecimal discountValue;          // % or fixed amount (depending on logic)
-}
+public record OrderRequestDto(
+        @NotNull
+        @Positive
+        Long userId,
+        @NotNull
+        List<Long> ticketIds,
+        @NotNull
+        List<Long> productIds,
+        DiscountType discountType,
+        @PositiveOrZero
+        BigDecimal discountValue
+) {}

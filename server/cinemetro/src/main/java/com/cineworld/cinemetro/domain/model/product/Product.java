@@ -1,5 +1,7 @@
 package com.cineworld.cinemetro.domain.model.product;
 
+import com.cineworld.cinemetro.domain.enums.product.ProductType;
+
 import jakarta.persistence.*;
 import lombok.*;
 

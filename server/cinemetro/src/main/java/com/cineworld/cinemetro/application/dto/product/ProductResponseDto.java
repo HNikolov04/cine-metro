@@ -1,19 +1,12 @@
 package com.cineworld.cinemetro.application.dto.product;
 
-import com.cineworld.cinemetro.domain.model.product.ProductType;
-import lombok.*;
-
+import com.cineworld.cinemetro.domain.enums.product.ProductType;
 import java.math.BigDecimal;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class ProductResponseDto {
-    private Long id;
-    private String name;
-    private ProductType type;
-    private BigDecimal price;
-    private String description;
-}
+public record ProductResponseDto(
+        Long id,
+        String name,
+        ProductType type,
+        BigDecimal price,
+        String description
+) {}
