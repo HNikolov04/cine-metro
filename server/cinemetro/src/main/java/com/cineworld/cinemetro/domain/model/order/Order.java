@@ -1,6 +1,9 @@
 package com.cineworld.cinemetro.domain.model.order;
 
-import com.cineworld.cinemetro.domain.model.User;
+import com.cineworld.cinemetro.domain.enums.order.DiscountType;
+import com.cineworld.cinemetro.domain.enums.order.OrderStatus;
+
+import com.cineworld.cinemetro.domain.model.user.User;
 import com.cineworld.cinemetro.domain.model.product.Product;
 import com.cineworld.cinemetro.domain.model.ticket.Ticket;
 import jakarta.persistence.*;

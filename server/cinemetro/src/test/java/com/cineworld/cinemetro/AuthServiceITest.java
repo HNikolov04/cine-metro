@@ -1,9 +1,9 @@
 package com.cineworld.cinemetro;
 
-import com.cineworld.cinemetro.domain.enums.UserRole;
-import com.cineworld.cinemetro.domain.model.User;
-import com.cineworld.cinemetro.persistence.repository.UserRepository;
-import com.cineworld.cinemetro.application.auth.AuthService;
+import com.cineworld.cinemetro.domain.enums.user.UserRole;
+import com.cineworld.cinemetro.domain.model.user.User;
+import com.cineworld.cinemetro.persistence.repository.user.UserRepository;
+import com.cineworld.cinemetro.application.service.auth.AuthService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

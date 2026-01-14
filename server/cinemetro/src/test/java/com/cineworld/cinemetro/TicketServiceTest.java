@@ -1,12 +1,12 @@
 package com.cineworld.cinemetro;
 
 import java.math.BigDecimal;
-import com.cineworld.cinemetro.application.service.TicketService;
+import com.cineworld.cinemetro.application.service.ticket.TicketService;
 import com.cineworld.cinemetro.application.dto.ticket.TicketRequestDto;
 import com.cineworld.cinemetro.application.dto.ticket.TicketResponseDto;
-import com.cineworld.cinemetro.application.mapper.TicketMapper;
+import com.cineworld.cinemetro.application.mapper.ticket.TicketMapper;
 import com.cineworld.cinemetro.domain.model.ticket.Ticket;
-import com.cineworld.cinemetro.persistence.repository.TicketRepository;
+import com.cineworld.cinemetro.persistence.repository.ticket.TicketRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -44,13 +44,9 @@ class TicketServiceTest {
                 .price(BigDecimal.valueOf(10.0))
                 .build();
 
-        ticketRequest = new TicketRequestDto();
-        ticketRequest.setSeatId(1L);
-        ticketRequest.setScreeningId(1L);
+        ticketRequest = new TicketRequestDto(1L, 1L, BigDecimal.valueOf(10.0));
 
-        ticketResponse = new TicketResponseDto();
-        ticketResponse.setId(1L);
-        ticketResponse.setPrice(BigDecimal.valueOf(10.0));
+        ticketResponse = new TicketResponseDto(1L, 1L, 1L, BigDecimal.valueOf(10.0));
     }
 
     @Test
@@ -65,7 +61,7 @@ class TicketServiceTest {
 
         // Assert
         assertNotNull(result);
-        assertEquals(ticketResponse.getId(), result.getId());
+        assertEquals(ticketResponse.id(), result.id());
         verify(ticketRepository, times(1)).save(any(Ticket.class));
     }
 
@@ -88,7 +84,7 @@ class TicketServiceTest {
         TicketResponseDto result = ticketService.getTicketById(1L);
 
         assertNotNull(result);
-        assertEquals(1L, result.getId());
+        assertEquals(1L, result.id());
     }
 
     @Test

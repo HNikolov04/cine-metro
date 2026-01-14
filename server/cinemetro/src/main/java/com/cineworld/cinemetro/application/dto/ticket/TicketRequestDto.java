@@ -1,17 +1,17 @@
 package com.cineworld.cinemetro.application.dto.ticket;
 
-
-import lombok.*;
-
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import java.math.BigDecimal;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class TicketRequestDto {
-    private Long screeningId;
-    private Long seatId;
-    private BigDecimal price;
-}
+public record TicketRequestDto(
+        @NotNull
+        @Positive
+        Long screeningId,
+        @NotNull
+        @Positive
+        Long seatId,
+        @NotNull
+        @Positive
+        BigDecimal price
+) {}
