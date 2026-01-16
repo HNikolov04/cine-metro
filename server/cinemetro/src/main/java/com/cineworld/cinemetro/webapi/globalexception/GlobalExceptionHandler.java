@@ -5,8 +5,17 @@ import com.cineworld.cinemetro.domain.exceptions.cinema.cinemabuilding.CinemaBui
 import com.cineworld.cinemetro.domain.exceptions.cinema.city.CityAlreadyExistsException;
 import com.cineworld.cinemetro.domain.exceptions.cinema.city.CityHasBuildingsException;
 import com.cineworld.cinemetro.domain.exceptions.cinema.city.CityNotFoundException;
+import com.cineworld.cinemetro.domain.exceptions.cinema.hall.HallAlreadyExistsException;
+import com.cineworld.cinemetro.domain.exceptions.cinema.hall.HallNotFoundException;
+import com.cineworld.cinemetro.domain.exceptions.cinema.seat.SeatAlreadyExistsException;
+import com.cineworld.cinemetro.domain.exceptions.cinema.seat.SeatNotFoundException;
+import com.cineworld.cinemetro.domain.exceptions.movie.MovieAlreadyExistsException;
+import com.cineworld.cinemetro.domain.exceptions.movie.MovieNotFoundException;
 import com.cineworld.cinemetro.domain.exceptions.order.OrderNotFoundException;
 import com.cineworld.cinemetro.domain.exceptions.product.ProductNotFoundException;
+import com.cineworld.cinemetro.domain.exceptions.screening.ScreeningAlreadyExistsException;
+import com.cineworld.cinemetro.domain.exceptions.screening.ScreeningNotFoundException;
+import com.cineworld.cinemetro.domain.exceptions.screening.ScreeningTimeConflictException;
 import com.cineworld.cinemetro.domain.exceptions.ticket.TicketNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -40,6 +49,51 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(CinemaBuildingAlreadyExistsException.class)
     public ResponseEntity<ErrorResponse> handleCinemaBuildingAlreadyExists(CinemaBuildingAlreadyExistsException ex) {
+        return build(HttpStatus.CONFLICT, ex.getMessage());
+    }
+
+    @ExceptionHandler(HallNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleHallNotFound(HallNotFoundException ex) {
+        return build(HttpStatus.NOT_FOUND, ex.getMessage());
+    }
+
+    @ExceptionHandler(HallAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleHallAlreadyExists(HallAlreadyExistsException ex) {
+        return build(HttpStatus.CONFLICT, ex.getMessage());
+    }
+
+    @ExceptionHandler(SeatNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleSeatNotFound(SeatNotFoundException ex) {
+        return build(HttpStatus.NOT_FOUND, ex.getMessage());
+    }
+
+    @ExceptionHandler(SeatAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleSeatAlreadyExists(SeatAlreadyExistsException ex) {
+        return build(HttpStatus.CONFLICT, ex.getMessage());
+    }
+
+    @ExceptionHandler(MovieNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleMovieNotFound(MovieNotFoundException ex) {
+        return build(HttpStatus.NOT_FOUND, ex.getMessage());
+    }
+
+    @ExceptionHandler(MovieAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleMovieAlreadyExists(MovieAlreadyExistsException ex) {
+        return build(HttpStatus.CONFLICT, ex.getMessage());
+    }
+
+    @ExceptionHandler(ScreeningNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleScreeningNotFound(ScreeningNotFoundException ex) {
+        return build(HttpStatus.NOT_FOUND, ex.getMessage());
+    }
+
+    @ExceptionHandler(ScreeningAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleScreeningAlreadyExists(ScreeningAlreadyExistsException ex) {
+        return build(HttpStatus.CONFLICT, ex.getMessage());
+    }
+
+    @ExceptionHandler(ScreeningTimeConflictException.class)
+    public ResponseEntity<ErrorResponse> handleScreeningTimeConflict(ScreeningTimeConflictException ex) {
         return build(HttpStatus.CONFLICT, ex.getMessage());
     }
 
