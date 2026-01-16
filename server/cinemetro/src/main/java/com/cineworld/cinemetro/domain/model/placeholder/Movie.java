@@ -3,7 +3,8 @@ package com.cineworld.cinemetro.domain.model.placeholder;
 import jakarta.persistence.*;
 import lombok.*;
 
-@Entity
+// Temporary
+@Entity(name = "PlaceholderMovie")
 @Getter
 @Setter
 @NoArgsConstructor
