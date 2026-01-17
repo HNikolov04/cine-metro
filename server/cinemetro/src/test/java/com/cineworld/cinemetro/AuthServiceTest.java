@@ -2,6 +2,9 @@ package com.cineworld.cinemetro;
 
 import com.cineworld.cinemetro.application.service.auth.AuthService;
 import com.cineworld.cinemetro.domain.enums.user.UserRole;
+import com.cineworld.cinemetro.domain.exceptions.user.InvalidCredentialsException;
+import com.cineworld.cinemetro.domain.exceptions.user.UserAlreadyExistsException;
+import com.cineworld.cinemetro.domain.exceptions.user.UserNotFoundException;
 import com.cineworld.cinemetro.domain.model.user.User;
 import com.cineworld.cinemetro.infrastructure.security.JwtTokenProvider;
 import com.cineworld.cinemetro.persistence.repository.user.UserRepository;
@@ -14,8 +17,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class AuthServiceTest {
 
@@ -58,7 +64,6 @@ class AuthServiceTest {
         String token = authService.login(email, password);
 
         assertEquals("jwt-token", token);
-
         verify(userRepository).findByEmail(email);
         verify(encoder).matches(password, "encodedPassword");
         verify(jwt).generateToken(email);
@@ -69,9 +74,10 @@ class AuthServiceTest {
         String email = "notfound@example.com";
         when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
 
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> authService.login(email, "password"));
+        UserNotFoundException exception = assertThrows(UserNotFoundException.class,
+                () -> authService.login(email, "password"));
 
-        assertEquals("User not found!", exception.getMessage());
+        assertEquals("User not found with email: " + email, exception.getMessage());
     }
 
     @Test
@@ -84,9 +90,10 @@ class AuthServiceTest {
         when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
         when(encoder.matches(password, "encodedPassword")).thenReturn(false);
 
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> authService.login(email, password));
+        InvalidCredentialsException exception = assertThrows(InvalidCredentialsException.class,
+                () -> authService.login(email, password));
 
-        assertEquals("Invalid password", exception.getMessage());
+        assertEquals("Invalid credentials.", exception.getMessage());
     }
 
     @Test
@@ -96,10 +103,24 @@ class AuthServiceTest {
         String encodedPassword = "encodedPassword";
 
         when(encoder.encode(password)).thenReturn(encodedPassword);
+        when(userRepository.existsByEmail(email)).thenReturn(false);
         when(userRepository.save(any(User.class))).thenAnswer(i -> i.getArguments()[0]);
+        when(jwt.generateToken(email)).thenReturn("jwt-token");
 
-        authService.register(email, password);
+        String token = authService.register(email, password);
 
+        assertEquals("jwt-token", token);
         verify(userRepository).save(any(User.class));
+    }
+
+    @Test
+    void register_existingEmail() {
+        String email = "new@example.com";
+        when(userRepository.existsByEmail(email)).thenReturn(true);
+
+        UserAlreadyExistsException exception = assertThrows(UserAlreadyExistsException.class,
+                () -> authService.register(email, "password"));
+
+        assertEquals("User already exists with email: " + email, exception.getMessage());
     }
 }

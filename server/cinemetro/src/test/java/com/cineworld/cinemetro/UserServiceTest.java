@@ -1,10 +1,13 @@
 package com.cineworld.cinemetro;
 
-import com.cineworld.cinemetro.application.dto.user.RegisterUserRequestDto;
+import com.cineworld.cinemetro.application.dto.user.CreateUserRequestDto;
+import com.cineworld.cinemetro.application.dto.user.UpdateUserRequestDto;
 import com.cineworld.cinemetro.application.dto.user.UserDto;
 import com.cineworld.cinemetro.application.mapper.user.UserMapper;
 import com.cineworld.cinemetro.application.service.user.UserService;
 import com.cineworld.cinemetro.domain.enums.user.UserRole;
+import com.cineworld.cinemetro.domain.exceptions.user.UserAlreadyExistsException;
+import com.cineworld.cinemetro.domain.exceptions.user.UserNotFoundException;
 import com.cineworld.cinemetro.domain.model.user.User;
 import com.cineworld.cinemetro.persistence.repository.user.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,8 +21,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
@@ -36,27 +41,29 @@ class UserServiceTest {
     @InjectMocks
     private UserService userService;
 
-    private RegisterUserRequestDto requestDto;
+    private CreateUserRequestDto createRequest;
+    private UpdateUserRequestDto updateRequest;
     private User user;
     private UserDto userDto;
 
     @BeforeEach
     void setup() {
-        requestDto = new RegisterUserRequestDto("test@test.com", "password");
+        createRequest = new CreateUserRequestDto("test@test.com", "password", UserRole.CUSTOMER);
+        updateRequest = new UpdateUserRequestDto("updated@test.com", UserRole.ADMIN);
         user = new User();
         user.setEmail("test@test.com");
-        userDto = new UserDto( 1L,"test@test.com", UserRole.CUSTOMER);
+        userDto = new UserDto(1L, "test@test.com", UserRole.CUSTOMER);
     }
 
     @Test
     void createUser_success() {
         when(userRepository.existsByEmail("test@test.com")).thenReturn(false);
-        when(userMapper.registerRequestToUser(requestDto)).thenReturn(user);
+        when(userMapper.fromCreateRequest(createRequest)).thenReturn(user);
         when(passwordEncoder.encode("password")).thenReturn("encodedPassword");
         when(userRepository.save(user)).thenReturn(user);
         when(userMapper.toDto(user)).thenReturn(userDto);
 
-        UserDto result = userService.createUser(requestDto);
+        UserDto result = userService.createUser(createRequest);
 
         assertEquals("test@test.com", result.email());
         verify(userRepository).save(user);
@@ -66,10 +73,10 @@ class UserServiceTest {
     void createUser_emailAlreadyExists_throws() {
         when(userRepository.existsByEmail("test@test.com")).thenReturn(true);
 
-        RuntimeException ex = assertThrows(RuntimeException.class,
-                () -> userService.createUser(requestDto));
+        UserAlreadyExistsException ex = assertThrows(UserAlreadyExistsException.class,
+                () -> userService.createUser(createRequest));
 
-        assertEquals("Email already exists!", ex.getMessage());
+        assertEquals("User already exists with email: test@test.com", ex.getMessage());
     }
 
     @Test
@@ -91,5 +98,15 @@ class UserServiceTest {
 
         assertEquals(1, result.size());
         assertEquals("test@test.com", result.getFirst().email());
+    }
+
+    @Test
+    void updateUser_notFound_throws() {
+        when(userRepository.findById(1L)).thenReturn(Optional.empty());
+
+        UserNotFoundException ex = assertThrows(UserNotFoundException.class,
+                () -> userService.updateUser(1L, updateRequest));
+
+        assertEquals("User not found with id: 1", ex.getMessage());
     }
 }

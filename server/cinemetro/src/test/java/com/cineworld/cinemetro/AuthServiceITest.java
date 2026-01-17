@@ -1,16 +1,21 @@
 package com.cineworld.cinemetro;
 
+import com.cineworld.cinemetro.application.service.auth.AuthService;
 import com.cineworld.cinemetro.domain.enums.user.UserRole;
+import com.cineworld.cinemetro.domain.exceptions.user.InvalidCredentialsException;
+import com.cineworld.cinemetro.domain.exceptions.user.UserNotFoundException;
 import com.cineworld.cinemetro.domain.model.user.User;
 import com.cineworld.cinemetro.persistence.repository.user.UserRepository;
-import com.cineworld.cinemetro.application.service.auth.AuthService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 @Transactional
@@ -34,15 +39,14 @@ class AuthServiceITest {
         String email = "service@test.com";
         String password = "mypassword";
 
-        // Register
-        authService.register(email, password);
+        String registerToken = authService.register(email, password);
+        assertNotNull(registerToken);
 
         User savedUser = userRepository.findByEmail(email).orElseThrow();
         assertEquals(email, savedUser.getEmail());
         assertEquals(UserRole.CUSTOMER, savedUser.getRole());
         assertTrue(passwordEncoder.matches(password, savedUser.getPassword()));
 
-        // Login
         String token = authService.login(email, password);
         assertNotNull(token);
     }
@@ -54,13 +58,15 @@ class AuthServiceITest {
 
         authService.register(email, password);
 
-        RuntimeException ex = assertThrows(RuntimeException.class, () -> authService.login(email, "wrongpassword"));
-        assertEquals("Invalid password", ex.getMessage());
+        InvalidCredentialsException ex = assertThrows(InvalidCredentialsException.class,
+                () -> authService.login(email, "wrongpassword"));
+        assertEquals("Invalid credentials.", ex.getMessage());
     }
 
     @Test
     void loginNonExistentUserShouldFail() {
-        RuntimeException ex = assertThrows(RuntimeException.class, () -> authService.login("notfound@test.com", "password"));
-        assertEquals("User not found!", ex.getMessage());
+        UserNotFoundException ex = assertThrows(UserNotFoundException.class,
+                () -> authService.login("notfound@test.com", "password"));
+        assertEquals("User not found with email: notfound@test.com", ex.getMessage());
     }
 }
