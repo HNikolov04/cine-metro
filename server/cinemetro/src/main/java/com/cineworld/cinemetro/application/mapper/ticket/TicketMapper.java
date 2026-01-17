@@ -1,20 +1,21 @@
 package com.cineworld.cinemetro.application.mapper.ticket;
 
-import com.cineworld.cinemetro.application.dto.ticket.TicketRequestDto;
 import com.cineworld.cinemetro.application.dto.ticket.TicketResponseDto;
+import com.cineworld.cinemetro.domain.model.cinema.Seat;
+import com.cineworld.cinemetro.domain.model.screening.Screening;
 import com.cineworld.cinemetro.domain.model.ticket.Ticket;
-import com.cineworld.cinemetro.domain.model.placeholder.Seat;
-import com.cineworld.cinemetro.domain.model.placeholder.Screening;
 import org.springframework.stereotype.Component;
+
+import java.math.BigDecimal;
 
 @Component
 public class TicketMapper {
 
-    public Ticket toEntity(TicketRequestDto request, Screening screening, Seat seat) {
+    public Ticket toEntity(Screening screening, Seat seat, BigDecimal price) {
         return Ticket.builder()
                 .screening(screening)
                 .seat(seat)
-                .price(request.price())
+                .price(price)
                 .build();
     }
 

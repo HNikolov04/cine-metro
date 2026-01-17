@@ -58,7 +58,7 @@ public class OrderMapper {
                 return new OrderItemResponseDto(
                         ticket.getId(),
                         ticket.getSeat() != null
-                                ? "Seat " + ticket.getSeat().getSeatNumber()
+                                ? "Seat " + ticket.getSeat().getRowNumber() + "-" + ticket.getSeat().getSeatNumber()
                                 : "Ticket #" + ticket.getId(),
                         type,
                         ticket.getPrice()
