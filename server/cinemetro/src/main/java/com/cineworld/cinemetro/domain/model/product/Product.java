@@ -25,7 +25,7 @@ public class Product {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private ProductType type; // e.g. FOOD, DRINK, ACCESSORY
+    private ProductType type;
 
     @Column(nullable = false)
     private BigDecimal price;

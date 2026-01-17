@@ -9,4 +9,6 @@ import java.util.List;
 @Repository
 public interface TicketRepository extends JpaRepository<Ticket, Long> {
     List<Ticket> findAllByScreening_Id(Long screeningId);
+
+    boolean existsByScreening_IdAndSeat_Id(Long screeningId, Long seatId);
 }

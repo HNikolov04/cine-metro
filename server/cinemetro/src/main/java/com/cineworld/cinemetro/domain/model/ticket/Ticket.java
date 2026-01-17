@@ -1,13 +1,16 @@
 package com.cineworld.cinemetro.domain.model.ticket;
 
-import com.cineworld.cinemetro.domain.model.placeholder.Seat;
-import com.cineworld.cinemetro.domain.model.placeholder.Screening;
+import com.cineworld.cinemetro.domain.model.cinema.Seat;
+import com.cineworld.cinemetro.domain.model.screening.Screening;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
 
 @Entity
+@Table(name = "ticket", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"screening_id", "seat_id"})
+})
 @Getter
 @Setter
 @NoArgsConstructor

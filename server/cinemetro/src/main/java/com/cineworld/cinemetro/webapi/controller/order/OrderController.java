@@ -18,36 +18,24 @@ public class OrderController {
 
     private final OrderService orderService;
 
-    /**
-     * Create a new order
-     */
     @PostMapping
     public ResponseEntity<OrderResponseDto> createOrder(@Valid @RequestBody OrderRequestDto requestDto) {
         OrderResponseDto response = orderService.createOrder(requestDto);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-    /**
-     * Get all orders
-     */
     @GetMapping
     public ResponseEntity<List<OrderResponseDto>> getAllOrders() {
         List<OrderResponseDto> orders = orderService.getAllOrders();
         return ResponseEntity.ok(orders);
     }
 
-    /**
-     * Get order by ID
-     */
     @GetMapping("/{id}")
     public ResponseEntity<OrderResponseDto> getOrderById(@PathVariable Long id) {
         OrderResponseDto order = orderService.getOrderById(id);
         return ResponseEntity.ok(order);
     }
 
-    /**
-     * Delete order by ID
-     */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
         orderService.deleteOrder(id);

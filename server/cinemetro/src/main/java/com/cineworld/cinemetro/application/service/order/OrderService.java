@@ -3,12 +3,23 @@ package com.cineworld.cinemetro.application.service.order;
 import com.cineworld.cinemetro.application.dto.order.OrderRequestDto;
 import com.cineworld.cinemetro.application.dto.order.OrderResponseDto;
 import com.cineworld.cinemetro.application.mapper.order.OrderMapper;
+import com.cineworld.cinemetro.application.mapper.ticket.TicketMapper;
+import com.cineworld.cinemetro.domain.exceptions.cinema.seat.SeatNotFoundException;
+import com.cineworld.cinemetro.domain.exceptions.cinema.seat.SeatNotInHallException;
 import com.cineworld.cinemetro.domain.exceptions.order.OrderNotFoundException;
+import com.cineworld.cinemetro.domain.exceptions.order.OrderValidationException;
+import com.cineworld.cinemetro.domain.exceptions.product.ProductNotFoundException;
+import com.cineworld.cinemetro.domain.exceptions.screening.ScreeningNotFoundException;
+import com.cineworld.cinemetro.domain.exceptions.ticket.TicketAlreadyExistsException;
+import com.cineworld.cinemetro.domain.model.cinema.Seat;
 import com.cineworld.cinemetro.domain.model.order.Order;
-import com.cineworld.cinemetro.domain.model.ticket.Ticket;
 import com.cineworld.cinemetro.domain.model.product.Product;
+import com.cineworld.cinemetro.domain.model.screening.Screening;
+import com.cineworld.cinemetro.domain.model.ticket.Ticket;
+import com.cineworld.cinemetro.persistence.repository.cinema.SeatRepository;
 import com.cineworld.cinemetro.persistence.repository.order.OrderRepository;
 import com.cineworld.cinemetro.persistence.repository.product.ProductRepository;
+import com.cineworld.cinemetro.persistence.repository.screening.ScreeningRepository;
 import com.cineworld.cinemetro.persistence.repository.ticket.TicketRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,6 +27,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -25,26 +38,28 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
     private final TicketRepository ticketRepository;
+    private final ScreeningRepository screeningRepository;
+    private final SeatRepository seatRepository;
+    private final TicketMapper ticketMapper;
 
     public OrderResponseDto createOrder(OrderRequestDto dto) {
-        // 1️⃣ Convert DTO to entity
         Order order = OrderMapper.toEntity(dto);
 
-        // 2️⃣ Fetch related tickets
-        List<Ticket> tickets = ticketRepository.findAllById(dto.ticketIds());
-        List<Product> products = productRepository.findAllById(dto.productIds());
+        Screening screening = screeningRepository.findById(dto.screeningId())
+                .orElseThrow(() -> new ScreeningNotFoundException(dto.screeningId()));
+
+        List<Ticket> tickets = toUniqueSeatIds(dto.seatIds()).stream()
+                .map(seatId -> buildTicket(screening, seatId))
+                .toList();
+        List<Product> products = findProducts(dto.productIds());
 
         order.setTickets(tickets);
         order.setProducts(products);
 
-        // 3️⃣ Calculate total
         BigDecimal total = calculateTotal(tickets, products, dto.discountValue());
         order.setTotalAmount(total);
 
-        // 4️⃣ Save to DB
         Order saved = orderRepository.save(order);
-
-        // 5️⃣ Return response DTO
         return OrderMapper.toDto(saved);
     }
 
@@ -85,5 +100,49 @@ public class OrderService {
         }
 
         return total;
+    }
+
+    private Set<Long> toUniqueSeatIds(List<Long> seatIds) {
+        Set<Long> unique = new LinkedHashSet<>(seatIds);
+        if (unique.size() != seatIds.size()) {
+            throw new OrderValidationException("Duplicate seats are not allowed.");
+        }
+        return unique;
+    }
+
+    private List<Product> findProducts(List<Long> productIds) {
+        if (productIds.isEmpty()) {
+            return List.of();
+        }
+
+        Set<Long> unique = new LinkedHashSet<>(productIds);
+        List<Product> products = productRepository.findAllById(unique);
+        if (products.size() != unique.size()) {
+            Set<Long> found = new LinkedHashSet<>();
+            for (Product product : products) {
+                found.add(product.getId());
+            }
+            for (Long id : unique) {
+                if (!found.contains(id)) {
+                    throw new ProductNotFoundException("Product not found with ID: " + id);
+                }
+            }
+        }
+        return products;
+    }
+
+    private Ticket buildTicket(Screening screening, Long seatId) {
+        Seat seat = seatRepository.findById(seatId)
+                .orElseThrow(() -> new SeatNotFoundException(seatId));
+
+        if (!seat.getHall().getId().equals(screening.getHall().getId())) {
+            throw new SeatNotInHallException(seatId, screening.getHall().getId());
+        }
+
+        if (ticketRepository.existsByScreening_IdAndSeat_Id(screening.getId(), seat.getId())) {
+            throw new TicketAlreadyExistsException(screening.getId(), seat.getId());
+        }
+
+        return ticketMapper.toEntity(screening, seat, screening.getBasePrice());
     }
 }
