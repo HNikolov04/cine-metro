@@ -12,6 +12,7 @@ import com.cineworld.cinemetro.domain.exceptions.cinema.seat.SeatNotFoundExcepti
 import com.cineworld.cinemetro.domain.exceptions.cinema.seat.SeatNotInHallException;
 import com.cineworld.cinemetro.domain.exceptions.movie.MovieAlreadyExistsException;
 import com.cineworld.cinemetro.domain.exceptions.movie.MovieNotFoundException;
+import com.cineworld.cinemetro.domain.exceptions.notification.NotificationNotFoundException;
 import com.cineworld.cinemetro.domain.exceptions.order.OrderNotFoundException;
 import com.cineworld.cinemetro.domain.exceptions.order.OrderValidationException;
 import com.cineworld.cinemetro.domain.exceptions.product.ProductNotFoundException;
@@ -20,6 +21,9 @@ import com.cineworld.cinemetro.domain.exceptions.screening.ScreeningNotFoundExce
 import com.cineworld.cinemetro.domain.exceptions.screening.ScreeningTimeConflictException;
 import com.cineworld.cinemetro.domain.exceptions.ticket.TicketAlreadyExistsException;
 import com.cineworld.cinemetro.domain.exceptions.ticket.TicketNotFoundException;
+import com.cineworld.cinemetro.domain.exceptions.user.InvalidCredentialsException;
+import com.cineworld.cinemetro.domain.exceptions.user.UserAlreadyExistsException;
+import com.cineworld.cinemetro.domain.exceptions.user.UserNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -128,6 +132,26 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(TicketAlreadyExistsException.class)
     public ResponseEntity<ErrorResponse> handleTicketAlreadyExists(TicketAlreadyExistsException ex) {
         return build(HttpStatus.CONFLICT, ex.getMessage());
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleUserNotFound(UserNotFoundException ex) {
+        return build(HttpStatus.NOT_FOUND, ex.getMessage());
+    }
+
+    @ExceptionHandler(UserAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleUserAlreadyExists(UserAlreadyExistsException ex) {
+        return build(HttpStatus.CONFLICT, ex.getMessage());
+    }
+
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidCredentials(InvalidCredentialsException ex) {
+        return build(HttpStatus.UNAUTHORIZED, ex.getMessage());
+    }
+
+    @ExceptionHandler(NotificationNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleNotificationNotFound(NotificationNotFoundException ex) {
+        return build(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
     @ExceptionHandler(Exception.class)

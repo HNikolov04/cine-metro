@@ -1,7 +1,9 @@
 package com.cineworld.cinemetro.application.service.auth;
 
-import com.cineworld.cinemetro.application.mapper.user.UserMapper;
 import com.cineworld.cinemetro.domain.enums.user.UserRole;
+import com.cineworld.cinemetro.domain.exceptions.user.InvalidCredentialsException;
+import com.cineworld.cinemetro.domain.exceptions.user.UserAlreadyExistsException;
+import com.cineworld.cinemetro.domain.exceptions.user.UserNotFoundException;
 import com.cineworld.cinemetro.domain.model.user.User;
 import com.cineworld.cinemetro.infrastructure.security.JwtTokenProvider;
 import com.cineworld.cinemetro.persistence.repository.user.UserRepository;
@@ -15,23 +17,40 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder encoder;
     private final JwtTokenProvider jwt;
-    //private final UserMapper userMapper;
 
     public String login(String username, String password){
-        String normalizeEmail = username.trim().toLowerCase();
-        var user = userRepository.findByEmail(normalizeEmail).orElseThrow(() -> new RuntimeException("User not found!"));
+        String normalizedEmail = username.trim().toLowerCase();
+        User user = userRepository.findByEmail(normalizedEmail)
+                .orElseThrow(() -> new UserNotFoundException(normalizedEmail));
         if(!encoder.matches(password, user.getPassword())){
-            throw new RuntimeException("Invalid password");
+            throw new InvalidCredentialsException("Invalid credentials.");
         }
-        return jwt.generateToken(username);
+        return jwt.generateToken(normalizedEmail);
     }
-    public void register(String email, String password) {
+
+    public String register(String email, String password) {
+        String normalizedEmail = email.trim().toLowerCase();
+        if (userRepository.existsByEmail(normalizedEmail)) {
+            throw new UserAlreadyExistsException(normalizedEmail);
+        }
         User user = User.builder()
-                .email(email.trim().toLowerCase())
+                .email(normalizedEmail)
                 .password(encoder.encode(password))
-                .role(UserRole.CUSTOMER) // default role
+                .role(UserRole.CUSTOMER)
                 .build();
 
+        userRepository.save(user);
+        return jwt.generateToken(normalizedEmail);
+    }
+
+    public void changePassword(String email, String currentPassword, String newPassword) {
+        String normalizedEmail = email.trim().toLowerCase();
+        User user = userRepository.findByEmail(normalizedEmail)
+                .orElseThrow(() -> new UserNotFoundException(normalizedEmail));
+        if (!encoder.matches(currentPassword, user.getPassword())) {
+            throw new InvalidCredentialsException("Current password is incorrect.");
+        }
+        user.setPassword(encoder.encode(newPassword));
         userRepository.save(user);
     }
 }
