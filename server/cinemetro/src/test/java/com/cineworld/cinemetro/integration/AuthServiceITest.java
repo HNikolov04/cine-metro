@@ -1,4 +1,4 @@
-package com.cineworld.cinemetro;
+package com.cineworld.cinemetro.integration;
 
 import com.cineworld.cinemetro.application.service.auth.AuthService;
 import com.cineworld.cinemetro.domain.enums.user.UserRole;

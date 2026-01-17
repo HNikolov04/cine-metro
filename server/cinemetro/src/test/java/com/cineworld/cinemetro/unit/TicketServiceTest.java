@@ -1,4 +1,4 @@
-package com.cineworld.cinemetro;
+package com.cineworld.cinemetro.unit;
 
 import com.cineworld.cinemetro.application.dto.ticket.TicketRequestDto;
 import com.cineworld.cinemetro.application.dto.ticket.TicketResponseDto;
