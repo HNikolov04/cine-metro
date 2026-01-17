@@ -3,9 +3,9 @@ package com.cineworld.cinemetro.domain.model.order;
 import com.cineworld.cinemetro.domain.enums.order.DiscountType;
 import com.cineworld.cinemetro.domain.enums.order.OrderStatus;
 
-import com.cineworld.cinemetro.domain.model.user.User;
 import com.cineworld.cinemetro.domain.model.product.Product;
 import com.cineworld.cinemetro.domain.model.ticket.Ticket;
+import com.cineworld.cinemetro.domain.model.user.User;
 import jakarta.persistence.*;
 import lombok.*;
 import java.math.BigDecimal;
@@ -25,10 +25,9 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // ---- Relations ----
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
-    private User user;  // Placeholder for now
+    private User user;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "order_id")
@@ -42,19 +41,17 @@ public class Order {
     )
     private List<Product> products;
 
-    // ---- Fields ----
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
 
     @Enumerated(EnumType.STRING)
     private DiscountType discountType;
 
-    private BigDecimal discountValue; // % or fixed amount
+    private BigDecimal discountValue;
     private BigDecimal totalAmount;
 
     private LocalDateTime createdAt;
 
-    // ---- Utility ----
     @PrePersist
     public void prePersist() {
         this.createdAt = LocalDateTime.now();
